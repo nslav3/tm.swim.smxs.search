@@ -125,12 +125,39 @@
       <q-btn label="Reset" color="primary"/>
       <q-btn label="Search" color="primary" @click="search" :loading="loading"/>
     </q-card-actions>
+        <q-markup-table wrap-cells flat bordered>
+          <thead class="bg-primary text-white">
+            <th class="text-left">Registry</th>
+            <th class="text-left">Service Name</th>
+            <th class="text-left">Description</th>
+            <th class="text-left">Service Category</th>
+            <th class="text-left">Availability Status</th>
+            <th class="text-left">Interface Type</th>
+          </thead>
+          <tbody>
+            <tr v-for="svc in services" :key="svc.id">
+              <td class="text-left" width="10%">{{ svc.endpoint }}</td>
+              <td class="text-left" width="10%">{{ svc.name }}</td>
+              <td class="text-left" width="40%">{{ svc.description }}</td>
+              <td class="text-left" width="10%">{{ svc.categories }}</td>
+              <td class="text-left" width="10%">{{ svc['service-availability-status'] }}</td>
+              <td class="text-left" width="10%">{{ svc['interface-type'] }}</td>
+            </tr>
+          </tbody>
+        </q-markup-table>
     <q-inner-loading :showing="loading" color="primary" size="50px"/>
   </q-page>
 </template>
 
 <script>
 import { ref, defineComponent } from 'vue'
+
+const CATEGORY_DICT = {
+  'http://semantics.aero/service-category#discovery': 'discovery',
+  'http://semantics.aero/service-category#flight': 'flight',
+  'http://semantics.aero/service-category#messaging': 'messaging',
+  'http://semantics.aero/service-category#infrastructure': 'infrastructure'
+}
 
 export default defineComponent({
   name: 'IndexPage',
@@ -165,7 +192,8 @@ export default defineComponent({
         { label: 'Message Oriented', value: 'message-oriented' },
         { label: 'Method Oriented', value: 'method-oriented' },
         { label: 'Resource Oriented', value: 'resource-oriented' }
-      ])
+      ]),
+      services: ref([])
     }
   },
 
@@ -182,6 +210,21 @@ export default defineComponent({
         }
         const result = await svc.find({ query })
         console.log('result', result)
+        this.services = []
+        for (let i = 0; i < result.length; i++) {
+          const x = result[i].data
+          const e = x.endpoint
+          if (Array.isArray(x.services)) {
+            x.services.forEach(y => {
+              y.endpoint = e
+              y.categories = y['service-category'].map(e => {
+                return CATEGORY_DICT[e.code]
+              })
+              y.categories = y.categories.join(', ')
+              this.services.push(y)
+            })
+          }
+        }
       } catch (err) {
         this.$q.notify({
           type: 'negative',

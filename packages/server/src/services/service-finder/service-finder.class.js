@@ -1,5 +1,7 @@
 import { Client } from 'undici'
 import qs from 'qs'
+import urlite from 'urlite'
+import fetch from 'node-fetch'
 
 export class ServiceFinderService {
   constructor(options) {
@@ -8,12 +10,11 @@ export class ServiceFinderService {
 
   async find(_params) {
     const query = _params.query || {}
-    console.log('query', query)
     if (Array.isArray(query.endpoints) && query.endpoints.length) {
       const promises = query.endpoints.map(r => {
-        return this._findServices('http://swim-registry.kr:8001', query.categories, query.availability, query.interfaces)
+        return this._findServices(r, query.categories, query.availability, query.interfaces)
       })
-      const result = await Promise.allSettled(promises)
+      const result = await (await Promise.allSettled(promises)).filter(x => x.status === 'fulfilled').map(x => x.value)
       return result
     }
     return []
@@ -21,20 +22,34 @@ export class ServiceFinderService {
 
   async _findServices(endpoint, categories, availability, interfaces) {
     try {
-      console.log('endpoint', endpoint)
-      const client = new Client(endpoint, {
+      /*
+      const url = urlite.parse(endpoint)
+      let remote = `${url.protocol || 'http:'}//${url.hostname}`
+      if (url.port) remote = `${remote}:${url.port}`
+      console.log('remote', remote)
+      const client = new Client(remote, {
         connections: 100,
         pipelining: 10
       })
 
       const options = {
-        path: '/smxs/services',
+        path: url.path ? `${url.path}/services` : '/services',
         method: 'GET',
-        headers: { Accept: 'application/json' }
+        headers: { Accept: 'application/json', 'Accept-Encoding': 'gzip, deflate, br' },
+        maxRedirections: 3
       }
-      const result = await this._request(client, options)
-      console.log('result', result)
-      return result
+      */
+      // const result = await this._request(client, options)
+      console.log('Getting services from', endpoint)
+      const response = await fetch(endpoint + '/services', { 
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+        redirect: 'follow',
+        follow: 20 
+      })
+      const data = await response.json()
+      console.log('response', data)
+      return { endpoint, data }
     } catch (err) {
       console.error('zaaa', err)
       throw(err)
@@ -50,12 +65,14 @@ export class ServiceFinderService {
         }
         try {
           const { statusCode, headers, body } = data
+          console.log('headers', headers)
           if (statusCode >= 200 && statusCode < 300) {
             const bufs = []
             body.on('data', buf => {
               bufs.push(buf)
             })
             body.on('end', () => {
+              console.log('bufs', Buffer.concat(bufs).toString('utf8'))
               return resolve(JSON.parse(Buffer.concat(bufs).toString('utf8')))
             })
           } else {
