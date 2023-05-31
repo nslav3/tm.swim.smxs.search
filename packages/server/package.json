@@ -37,7 +37,7 @@
   "type": "module",
   "scripts": {
     "start": "node src",
-    "dev": "nodemon src/",
+    "dev": "NODE_ENV=development nodemon src/",
     "prettier": "npx prettier \"**/*.js\" --write",
     "mocha": "cross-env NODE_ENV=test mocha test/ --recursive --exit",
     "test": "cross-env NODE_ENV=test npm run migrate && npm run mocha",
@@ -58,6 +58,7 @@
     "@feathersjs/socketio": "^5.0.5",
     "@feathersjs/transport-commons": "^5.0.5",
     "@feathersjs/typebox": "^5.0.5",
+    "got": "^13.0.0",
     "knex": "^2.4.2",
     "node-fetch": "^3.3.1",
     "pg": "^8.11.0",

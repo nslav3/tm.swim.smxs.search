@@ -43,7 +43,11 @@ export const peers = (app) => {
       all: []
     },
     error: {
-      all: []
+      all: [
+        (context) => {
+          console.error('services/peers: Error: %O', context.error)
+        }
+      ]
     }
   })
 }

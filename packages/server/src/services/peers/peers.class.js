@@ -1,6 +1,7 @@
 // This is a skeleton for a custom service class. Remove or add the methods you need here
 import { Client } from 'undici'
 import qs from 'qs'
+import { logger } from '../../logger.js'
 
 export class PeersService {
   constructor(options) {
@@ -19,13 +20,14 @@ export class PeersService {
 
   async find(_params) {
     const options = this._options(null, _params.query)
+    logger.debug('services/peers: Finding peers ... ')
     const result = await this._request(options)
     return result
   }
 
   _options (id, params, data, method) {
     const options = {
-      path: '/peers',
+      path: '/smxs/peers',
       method: method || 'GET'
     }
 

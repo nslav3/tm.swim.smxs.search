@@ -1,7 +1,6 @@
-import { Client } from 'undici'
 import qs from 'qs'
-import urlite from 'urlite'
 import fetch from 'node-fetch'
+import { logger } from '../../logger.js'
 
 export class ServiceFinderService {
   constructor(options) {
@@ -22,28 +21,29 @@ export class ServiceFinderService {
 
   async _findServices(endpoint, categories, availability, interfaces) {
     try {
-      /*
-      const url = urlite.parse(endpoint)
-      let remote = `${url.protocol || 'http:'}//${url.hostname}`
-      if (url.port) remote = `${remote}:${url.port}`
-      console.log('remote', remote)
-      const client = new Client(remote, {
-        connections: 100,
-        pipelining: 10
-      })
-
-      const options = {
-        path: url.path ? `${url.path}/services` : '/services',
-        method: 'GET',
-        headers: { Accept: 'application/json', 'Accept-Encoding': 'gzip, deflate, br' },
-        maxRedirections: 3
+      let url = `${endpoint}/services`
+      let urlParams = {}
+      if (Array.isArray(categories) && categories.length) {
+        urlParams['service-category'] = categories.join(',')
       }
-      */
-      // const result = await this._request(client, options)
-      console.log('Getting services from', endpoint)
-      const response = await fetch(endpoint + '/services', { 
+      if (Array.isArray(availability) && availability.length) {
+        urlParams['availability-status'] = availability.join(',')
+      }
+      if (Array.isArray(interfaces) && interfaces.length) {
+        urlParams['interface-type'] = interfaces.join(',')
+      }
+      const q = qs.stringify(urlParams)
+      if (q !== '') {
+        url = `${url}?${q}`
+      }
+      logger.info('service-finder: Retrieving service list from %s ...', url)
+      const response = await fetch(url, { 
         method: 'GET',
-        headers: { Accept: 'application/json' },
+        headers: { 
+          Accept: 'application/json',
+         'Accept-Encoding': 'gzip, deflate, br',
+         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36'
+        },
         redirect: 'follow',
         follow: 20 
       })

@@ -136,12 +136,17 @@
           </thead>
           <tbody>
             <tr v-for="svc in services" :key="svc.id">
-              <td class="text-left" width="10%">{{ svc.endpoint }}</td>
+              <td class="text-left" width="10%"><img :src="svc.logo" width="60" height="59" @click="viewRegistry(svc.endpoint)" class="cursor-pointer"/></td>
               <td class="text-left" width="10%">{{ svc.name }}</td>
-              <td class="text-left" width="40%">{{ svc.description }}</td>
+              <td class="text-left" width="40%">
+                {{ svc.description }}
+                <div>
+                  <a :href="svc.id" target="_blank">{{ svc.id }}</a>
+                </div>
+              </td>
               <td class="text-left" width="10%">{{ svc.categories }}</td>
-              <td class="text-left" width="10%">{{ svc['service-availability-status'] }}</td>
-              <td class="text-left" width="10%">{{ svc['interface-type'] }}</td>
+              <td class="text-left" width="10%">{{ svc.status }}</td>
+              <td class="text-left" width="10%">{{ svc.interfaces }}</td>
             </tr>
           </tbody>
         </q-markup-table>
@@ -151,12 +156,34 @@
 
 <script>
 import { ref, defineComponent } from 'vue'
+import RegistryDialog from './RegistryDialog.vue'
 
 const CATEGORY_DICT = {
   'http://semantics.aero/service-category#discovery': 'discovery',
   'http://semantics.aero/service-category#flight': 'flight',
   'http://semantics.aero/service-category#messaging': 'messaging',
-  'http://semantics.aero/service-category#infrastructure': 'infrastructure'
+  'http://semantics.aero/service-category#infrastructure': 'infrastructure',
+  'http://semantics.aero/service-category#weather': 'weather',
+  'http://semantics.aero/service-category#aeronautical': 'aeronautical'
+}
+
+const STATUS_DICT = {
+  'http://semantics.aero/availability-status#retired': 'RETIRED',
+  'http://semantics.aero/availability-status#operational': 'OPERATIONAL',
+  'http://semantics.aero/availability-status#prospective': 'PROSPECTIVE'
+}
+
+const INTERFACE_DICT = {
+  'http://semantics.aero/interface-type#method-oriented': 'METHOD ORIENTED',
+  'http://semantics.aero/interface-type#message-oriented': 'MESSAGE ORIENTED',
+  'http://semantics.aero/interface-type#resource-oriented': 'RESOURCE ORIENTED'
+}
+
+const LOGO_DICT = {
+  'https://nsrr.faa.gov/smxs': '/FAA-logo-small.png',
+  'http://18.224.226.206:8082/smxs': '/ENRI.JPG',
+  'http://swim-registry.kr:8001/smxs': '/kac_223-ab.png',
+  'http://192.168.56.131:3031/smxs': '/favicon-96x96.png'
 }
 
 export default defineComponent({
@@ -198,6 +225,18 @@ export default defineComponent({
   },
 
   methods: {
+    viewRegistry (endpoint) {
+      this.$q.dialog({
+        component: RegistryDialog,
+        parent: this,
+        componentProps: {
+          endpoint
+        }
+      }).onOk(() => {
+
+      }).onCancel(() => {})
+    },
+
     async search () {
       try {
         this.loading = true
@@ -213,14 +252,24 @@ export default defineComponent({
         this.services = []
         for (let i = 0; i < result.length; i++) {
           const x = result[i].data
-          const e = x.endpoint
+          const e = result[i].endpoint
           if (Array.isArray(x.services)) {
             x.services.forEach(y => {
               y.endpoint = e
-              y.categories = y['service-category'].map(e => {
-                return CATEGORY_DICT[e.code]
-              })
+              y.logo = LOGO_DICT[e]
+              y.categories = Array.isArray(y['service-category']) ? y['service-category'].map(e => {
+                return CATEGORY_DICT[e.code] || e.code
+              }) : []
               y.categories = y.categories.join(', ')
+              y.status = y['service-availability-status'].map(e => {
+                return STATUS_DICT[e.code] || e.code
+              })
+              y.status = y.status.join(', ')
+
+              y.interfaces = Array.isArray(y['interface-type']) ? y['interface-type'].map(e => {
+                return INTERFACE_DICT[e.code] || e.code
+              }) : []
+              y.interfaces = y.interfaces.join(', ')
               this.services.push(y)
             })
           }
@@ -238,7 +287,6 @@ export default defineComponent({
 
     async filterRegistries (val, update, abort) {
       try {
-        console.log('filter')
         this.peerOptions = []
         const svc = this.$apiClient.service('peers')
         const result = await svc.find()
