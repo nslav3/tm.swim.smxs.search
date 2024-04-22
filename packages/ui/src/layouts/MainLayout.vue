@@ -2,20 +2,12 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
-
-        <q-toolbar-title>
-          Quasar App
+      <img src="/favicon-96x96.png" width="32" height="32"/>
+       <q-toolbar-title>
+          SWIM Discovery Service
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div>Cross Registry Search</div>
       </q-toolbar>
     </q-header>
 

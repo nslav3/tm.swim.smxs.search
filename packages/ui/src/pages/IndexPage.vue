@@ -3,122 +3,127 @@
     <div class="row q-col-gutter-xs">
       <div class="col-12">
         <q-card flat bordered>
-          <q-card-section>Registries</q-card-section>
-        <q-card-section>
-          <q-select
-            v-model="peers"
-            :options="peerOptions"
-            label="Registries"
-            outlined
-            dense
-            use-input
-            input-debounce="0"
-            @filter="filterRegistries"
-            multiple
-            clearable>
-            <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
-              <q-item v-bind="itemProps">
-                <q-item-section side>
-                  <q-checkbox :model-value="selected" @update:model-value="toggleOption(opt)"/>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>{{ opt.label }}</q-item-label>
-                </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
-        </q-card-section>
-        </q-card>
-      </div>
-      <div class="col-12">
-        <q-card flat bordered>
-          <q-card-section>Search Criteria</q-card-section>
-          <q-card-section>
-            <div class="row q-col-gutter-sm">
-              <div class="col-4">
-                <q-card flat bordered>
-                  <q-card-section>Service Category</q-card-section>
-                  <q-card-section>
-                    <div class="row q-col-gutter-sm">
-                      <div class="col-6">
-                        <q-list dense>
-                          <q-item header>Information</q-item>
-                          <q-item v-for="item in categoryInformationOptions" :key="item.value" tag="label">
-                            <q-item-section side>
-                              <q-checkbox v-model="selectedCategory" :val="item"/>
-                            </q-item-section>
-                            <q-item-section>
-                              <q-item-label>{{ item.label }}</q-item-label>
-                            </q-item-section>
-                          </q-item>
-                        </q-list>
-                      </div>
-                      <div class="col-6">
-                        <q-list dense>
-                          <q-item header>Core</q-item>
-                          <q-item v-for="item in categoryCoreOptions" :key="item.value" tag="label">
-                            <q-item-section side>
-                              <q-checkbox v-model="selectedCategory" :val="item"/>
-                            </q-item-section>
-                            <q-item-section>
-                              <q-item-label>{{ item.label }}</q-item-label>
-                            </q-item-section>
-                          </q-item>
-                        </q-list>
-                      </div>
-                    </div>
-
-                  </q-card-section>
-                </q-card>
-              </div>
-
-              <div class="col-4">
-                <q-card flat bordered>
-                  <q-card-section>Availability Status</q-card-section>
-                  <q-card-section>
-                    <div class="row q-col-gutter-sm">
-                      <div class="col-12">
-                        <q-list dense>
-                          <q-item v-for="item in availabilityStatusOptions" :key="item.value" tag="label">
-                            <q-item-section side>
-                              <q-checkbox v-model="selectedStatus" :val="item"/>
-                            </q-item-section>
-                            <q-item-section>
-                              <q-item-label>{{ item.label }}</q-item-label>
-                            </q-item-section>
-                          </q-item>
-                        </q-list>
-                      </div>
-                    </div>
-                  </q-card-section>
-                </q-card>
-              </div>
-
-              <div class="col-4">
-                <q-card flat bordered>
-                  <q-card-section>Interface Type</q-card-section>
-                  <q-card-section>
-                    <div class="row q-col-gutter-sm">
-                      <div class="col-12">
-                        <q-list dense>
-                          <q-item v-for="item in interfaceTypeOptions" :key="item.value" tag="label">
-                            <q-item-section side>
-                              <q-checkbox v-model="selectedInterface" :val="item"/>
-                            </q-item-section>
-                            <q-item-section>
-                              <q-item-label>{{ item.label }}</q-item-label>
-                            </q-item-section>
-                          </q-item>
-                        </q-list>
-                      </div>
-                    </div>
- 
-                  </q-card-section>
-                </q-card>
-              </div>
-            </div>
+          <q-card-section class="q-pa-xs">
+            <span class="text-h6">Registries</span>
+          </q-card-section>
+          <q-card-section class="q-pa-xs">
+            <q-select
+              v-model="peers"
+              :options="peerOptions"
+              label="Registries"
+              outlined
+              dense
+              use-input
+              input-debounce="0"
+              @filter="filterRegistries"
+              multiple
+              clearable>
+              <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
+                <q-item v-bind="itemProps">
+                  <q-item-section side>
+                    <q-checkbox :model-value="selected" @update:model-value="toggleOption(opt)"/>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>{{ opt.label }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
           </q-card-section>
         </q-card>
+      </div>
+
+      <div class="col-12">
+        <q-list flat bordered>
+          <q-expansion-item label="Search Filter" caption="Select search filter" icon="filter_list" header-class="text-h6">
+            <q-card flat>
+              <q-card-section class="q-pa-xs">
+                <div class="row q-col-gutter-sm">
+                  <div class="col-4">
+                    <q-card flat bordered>
+                      <q-card-section class="q-pa-xs text-bold">Service Category</q-card-section>
+                      <q-card-section class="q-pa-xs">
+                        <div class="row q-col-gutter-xs">
+                          <div class="col-6">
+                            <q-list dense>
+                              <q-item-label header>Information</q-item-label>
+                              <q-item v-for="item in categoryInformationOptions" :key="item.value" tag="label">
+                                <q-item-section side>
+                                  <q-checkbox v-model="selectedCategory" :val="item"/>
+                                </q-item-section>
+                                <q-item-section>
+                                  <q-item-label>{{ item.label }}</q-item-label>
+                                </q-item-section>
+                              </q-item>
+                            </q-list>
+                          </div>
+                          <div class="col-6">
+                            <q-list dense>
+                              <q-item-label header>Core</q-item-label>
+                              <q-item v-for="item in categoryCoreOptions" :key="item.value" tag="label">
+                                <q-item-section side>
+                                  <q-checkbox v-model="selectedCategory" :val="item"/>
+                                </q-item-section>
+                                <q-item-section>
+                                  <q-item-label>{{ item.label }}</q-item-label>
+                                </q-item-section>
+                              </q-item>
+                            </q-list>
+                          </div>
+                        </div>
+                      </q-card-section>
+                    </q-card>
+                  </div>
+
+                  <div class="col-4">
+                    <q-card flat bordered>
+                      <q-card-section class="q-pa-xs text-bold">Availability Status</q-card-section>
+                      <q-card-section class="q-pa-xs">
+                        <div class="row q-col-gutter-sm">
+                          <div class="col-12">
+                            <q-list dense>
+                              <q-item v-for="item in availabilityStatusOptions" :key="item.value" tag="label">
+                                <q-item-section side>
+                                  <q-checkbox v-model="selectedStatus" :val="item"/>
+                                </q-item-section>
+                                <q-item-section>
+                                  <q-item-label>{{ item.label }}</q-item-label>
+                                </q-item-section>
+                              </q-item>
+                            </q-list>
+                          </div>
+                        </div>
+                      </q-card-section>
+                    </q-card>
+                  </div>
+
+                  <div class="col-4">
+                    <q-card flat bordered>
+                      <q-card-section class="q-pa-xs text-bold">Interface Type</q-card-section>
+                      <q-card-section class="q-pa-xs">
+                        <div class="row q-col-gutter-sm">
+                          <div class="col-12">
+                            <q-list dense>
+                              <q-item v-for="item in interfaceTypeOptions" :key="item.value" tag="label">
+                                <q-item-section side>
+                                  <q-checkbox v-model="selectedInterface" :val="item"/>
+                                </q-item-section>
+                                <q-item-section>
+                                  <q-item-label>{{ item.label }}</q-item-label>
+                                </q-item-section>
+                              </q-item>
+                            </q-list>
+                          </div>
+                        </div>
+    
+                      </q-card-section>
+                    </q-card>
+                  </div>
+                </div>
+              </q-card-section>
+            </q-card>
+        </q-expansion-item>
+        </q-list>
       </div>
     </div>
     <q-card-actions align="center">
@@ -183,7 +188,7 @@ const LOGO_DICT = {
   'https://nsrr.faa.gov/smxs': '/FAA-logo-small.png',
   'http://18.224.226.206:8082/smxs': '/ENRI.JPG',
   'http://swim-registry.kr:8001/smxs': '/kac_223-ab.png',
-  'http://192.168.56.131:3031/smxs': '/favicon-96x96.png'
+  'http://192.168.56.112:3031/smxs': '/favicon-96x96.png'
 }
 
 export default defineComponent({
